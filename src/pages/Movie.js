@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import {Container, Box, Paper} from '@material-ui/core';
 import axios from "axios"; 
 
 const mapToComponent = data => {
     return data.map((movie, i) => {
         return (
-            <div key={i}>
-                <p><img src={movie.medium_cover_image} /></p>
-                <p>Title: {movie.title}</p>
-                <p>Summary: {movie.summary}</p>
-                <p>Rating: {movie.rating}</p>
-                <p>Url: {movie.url}</p>
-            </div>
+            <Paper>
+                <Box mb={2} p={2} key={i}>
+                    <p><img src={movie.medium_cover_image} /></p>
+                    <p>Title: {movie.title}</p>
+                    <p>Summary: {movie.summary}</p>
+                    <p>Rating: {movie.rating}</p>
+                    <p>Url: {movie.url}</p>
+                </Box>
+            </Paper>
         );
     })
 }
@@ -34,10 +37,10 @@ const Movie = ({match}) => {
     console.log("data", data)
     
     return (
-        <div>
+        <Container>
             <h3>영화: {match.params.name}</h3>
             {data && mapToComponent(data.data.movies)}
-        </div>
+        </Container>
         );
 
 }
