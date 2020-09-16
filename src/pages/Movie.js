@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {Container, Box, Paper} from '@material-ui/core';
+import {Container, Box, Paper, LinearProgress} from '@material-ui/core';
 import axios from "axios"; 
 
 const mapToComponent = data => {
@@ -21,14 +21,21 @@ const mapToComponent = data => {
 const Movie = ({match}) => {
 
     const [data, setData] = useState(null)
+    const [isLoading, setLoading] = useState(true)
 
     useEffect(() => {
         const fetchData = async () => {
-          const result = await axios(
-            'https://yts.mx/api/v2/list_movies.json?limit=10',
-          );
+            try {
+                const result = await axios(
+                    'https://yts.mx/api/v2/list_movies.json?limit=10',
+                );
+
+                setData(result.data);
+                setLoading(false) // 스피너 false
+            } catch(err) {
+
+            }
      
-          setData(result.data);
         };
      
         fetchData();
@@ -39,6 +46,7 @@ const Movie = ({match}) => {
     return (
         <Container>
             <h3>영화: {match.params.name}</h3>
+            {isLoading === true ? <LinearProgress /> : null}
             {data && mapToComponent(data.data.movies)}
         </Container>
         );
