@@ -1,75 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Container, Box, Grid, Paper, LinearProgress } from '@material-ui/core';
-import Rating from '@material-ui/lab/Rating';
-import axios from "axios";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Container, LinearProgress } from '@material-ui/core';
 
-const mapToComponent = data => {
-    return data.map((movie, i) => {
-        return (
-            <Box display="flex" justifyContent="center" mb={5} p={2} key={i} >
-                <Paper>
-                    <Grid container>
-                        <Grid xs={3}>
-                            <img src={movie.medium_cover_image} alt={movie.title + '의 이미지'}/>
-                        </Grid>
-                        <Grid xs={7}>
-                            <Grid>
-                                <h3>{movie.title}</h3>
-                            </Grid>
-                            <Grid>
-                                <p>{movie.summary}</p>
-                            </Grid>
-                        </Grid>
-                        <Grid xs={2}>
-                            <Grid>
-                                <Box component="fieldset" mb={3} borderColor="transparent">
-                                    <p>평점: {(movie.rating)} / 10</p>
-                                    <Rating name="read-only" value={(movie.rating / 2)} precision={0.1} readOnly />
-                                </Box>
-                            </Grid>
-                            <Grid>
-                                <Link to={`/movie/${movie.id}`}>[자세히 보기]</Link>
-                        </Grid>
-                        </Grid>
-                    </Grid>
-                </Paper>
-            </Box>
+import MovieList from './../components/MovieList'
 
-        );
-    })
-}
+import useIntersectionObserver from './../hooks/useIntersectionObserver'
+import { getMovies } from '../util/MovieAPI';
+
+const PER_PAGE = 4
 
 const Movie = () => {
 
-    const [data, setData] = useState(null)
-    const [isLoading, setLoading] = useState(true)
+    // 인스턴스 변수
+    const currentPage = useRef(1)
+    const totalPage = useRef(0)
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const result = await axios(
-                    'https://yts.mx/api/v2/list_movies.json?limit=10',
-                );
+    // 리퀘스트 상태
+    const [isLoading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
 
-                setData(result.data)
-                setLoading(false) // 스피너 false
-            } catch (err) {
+    // 영화 데이터
+    const [data, setData] = useState([])
 
-            }
+    // DOM ref
+    const rootRef = useRef(null)
+    const targetRef = useRef(null)
 
-        };
+    const loadMovies = useCallback(async (params) => {
+        try {
+            setLoading(true)
+            const result = await getMovies(params)
 
-        fetchData();
+            return result.data.data.movies
+        } catch (err) {
+            setError(err)
+        } finally {
+            setLoading(false) // 스피너 false
+        }
     }, []);
 
-    console.log("data", data)
+    const initLoad = useCallback(async (params) => {
+        const movies = await loadMovies(params)
+        setData(movies)
+    })
+
+    useEffect(() => {
+        initLoad({limit: PER_PAGE})
+        console.log("data", data)
+    }, [])
+
+    // 무한스크롤
 
     return (
-        <Container width="75%">
+        <Container width="75%" ref={rootRef}>
             <h3>영화 목록</h3>
             {isLoading === true ? <LinearProgress /> : null}
-            {data && mapToComponent(data.data.movies)}
+            {data && <MovieList movies={data} />}
+            
+            {/* 무한스크롤 동작하기 위한 div */}
         </Container>
     );
 
