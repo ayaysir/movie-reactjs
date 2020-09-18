@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Container, LinearProgress } from '@material-ui/core'
 import useInfiniteScroll from 'react-infinite-scroll-hook'
 import MovieItem from '../components/MovieItem'
+import MovieFilter from './../components/MovieFilter'
 import { getMovies } from '../util/MovieAPI'
 
 const PER_PAGE = 4
@@ -18,6 +19,12 @@ const Movie = () => {
 
     // 영화 데이터
     const [data, setData] = useState([])
+
+    // 정렬 기준
+    const [currentOrder, setCurrentOrder] = useState({
+        sortBy: null,
+        orderBy: "desc"
+    })
 
     // DOM ref
 
@@ -74,9 +81,15 @@ const Movie = () => {
         onLoadMore: handleLoadMore
     })
 
+    const order = useCallback((orderBy) => {
+        alert(orderBy)
+
+    }, [])
+
     return (
         <Container maxWidth="md" ref={infiniteRef}>
             <h3>영화 목록</h3>
+            <MovieFilter clickButton={fromChild => order(fromChild)}/>
             {data.length > 0 && data.map(item => (<MovieItem movie={item} key={item.id}/>))}
             {loading === true ? <LinearProgress /> : null}
             <div style={{height: '30px'}}></div>
