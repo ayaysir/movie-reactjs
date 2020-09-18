@@ -32,7 +32,6 @@ const Movie = () => {
         try {
             setLoading(true)
             const result = await getMovies(params)
-
             return result.data.data
         } catch (err) {
             setError(err)
@@ -43,9 +42,7 @@ const Movie = () => {
     }, [error]);
 
     const moreLoad = useCallback(async (params) => {
-        setLoading(true)
         const getData = await loadMovies(params)
-        setLoading(false)
 
         // 영화가 더 이상 없다면 무한스크롤 중단
         if(getData.movies.length === 0) {
@@ -70,9 +67,11 @@ const Movie = () => {
     const handleLoadMore = useCallback(() => {
         moreLoad({
             limit: PER_PAGE,
-            page: ++currentPage.current
+            page: ++currentPage.current,
+            sort_by: currentOrder.sortBy || "date_added",
+            order_by: currentOrder.orderBy || "desc"
         })
-    }, [moreLoad])
+    }, [moreLoad, currentOrder])
 
     // 무한스크롤
     const infiniteRef = useInfiniteScroll({
@@ -81,10 +80,25 @@ const Movie = () => {
         onLoadMore: handleLoadMore
     })
 
-    const order = useCallback((orderBy) => {
-        alert(orderBy)
+    const order = useCallback((sortInfo) => {
+        // alert(sortInfo.orderBy + ":" + sortInfo.sortBy)
+        const fetchData = async () => {
+            setData(() => [])
+            const getData = await loadMovies({
+                limit: PER_PAGE,
+                order_by: sortInfo.orderBy,
+                sort_by: sortInfo.sortBy
+            })
+            setData(() => [...getData.movies])
+            setHasNextPage(true)
+            setCurrentOrder({
+                orderBy: sortInfo.orderBy,
+                sortBy: sortInfo.sortBy
+            })
+        }
+        fetchData()
 
-    }, [])
+    }, [loadMovies, setCurrentOrder])
 
     return (
         <Container maxWidth="md" ref={infiniteRef}>
