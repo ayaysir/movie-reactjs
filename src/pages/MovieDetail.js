@@ -26,7 +26,7 @@ const MovieDetail = ({ match }) => {
         };
 
         fetchData();
-    }, []);
+    }, [match.params.name]);
 
     const moviePanel = data && (
         <Grid container>

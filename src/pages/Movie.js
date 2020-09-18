@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Container, LinearProgress } from '@material-ui/core';
-
-import MovieList from './../components/MovieList'
-
-import useIntersectionObserver from './../hooks/useIntersectionObserver'
-import { getMovies } from '../util/MovieAPI';
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { Container, LinearProgress } from '@material-ui/core'
+import useInfiniteScroll from 'react-infinite-scroll-hook'
+import MovieItem from '../components/MovieItem'
+import { getMovies } from '../util/MovieAPI'
 
 const PER_PAGE = 4
 
@@ -12,51 +10,76 @@ const Movie = () => {
 
     // 인스턴스 변수
     const currentPage = useRef(1)
-    const totalPage = useRef(0)
 
     // 리퀘스트 상태
-    const [isLoading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [hasNextPage, setHasNextPage] = useState()
     const [error, setError] = useState(false)
 
     // 영화 데이터
     const [data, setData] = useState([])
 
     // DOM ref
-    const rootRef = useRef(null)
-    const targetRef = useRef(null)
 
     const loadMovies = useCallback(async (params) => {
         try {
             setLoading(true)
             const result = await getMovies(params)
 
-            return result.data.data.movies
+            return result.data.data
         } catch (err) {
             setError(err)
+            console.log(error)
         } finally {
             setLoading(false) // 스피너 false
         }
-    }, []);
+    }, [error]);
 
-    const initLoad = useCallback(async (params) => {
-        const movies = await loadMovies(params)
-        setData(movies)
-    })
+    const moreLoad = useCallback(async (params) => {
+        setLoading(true)
+        const getData = await loadMovies(params)
+        setLoading(false)
+
+        // 영화가 더 이상 없다면 무한스크롤 중단
+        if(getData.movies.length === 0) {
+            setHasNextPage(false)
+            return
+        }
+        setData(currentData => [...currentData, ...getData.movies])
+    }, [loadMovies])
 
     useEffect(() => {
-        initLoad({limit: PER_PAGE})
-        console.log("data", data)
-    }, [])
+        const fetchData = async () => {
+            const getData = await loadMovies({
+                limit: PER_PAGE
+            })
+            setData(() => [...getData.movies])
+            setHasNextPage(true)
+        }
+        fetchData()
+       
+    }, [loadMovies])
+
+    const handleLoadMore = useCallback(() => {
+        moreLoad({
+            limit: PER_PAGE,
+            page: ++currentPage.current
+        })
+    }, [moreLoad])
 
     // 무한스크롤
+    const infiniteRef = useInfiniteScroll({
+        loading,
+        hasNextPage,
+        onLoadMore: handleLoadMore
+    })
 
     return (
-        <Container width="75%" ref={rootRef}>
+        <Container maxWidth="md" ref={infiniteRef}>
             <h3>영화 목록</h3>
-            {isLoading === true ? <LinearProgress /> : null}
-            {data && <MovieList movies={data} />}
-            
-            {/* 무한스크롤 동작하기 위한 div */}
+            {data.length > 0 && data.map(item => (<MovieItem movie={item} key={item.id}/>))}
+            {loading === true ? <LinearProgress /> : null}
+            <div style={{height: '30px'}}></div>
         </Container>
     );
 
