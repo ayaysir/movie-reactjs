@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, LinearProgress, Typography } from '@material-ui/core';
+import { Container, Box, Grid, LinearProgress, Typography } from '@material-ui/core';
 import Rating from '@material-ui/lab/Rating';
 import { getMovieDetail } from '../util/MovieAPI';
 
@@ -38,7 +38,7 @@ const MovieDetail = ({ match }) => {
             <Grid xs={7} item={true}>
                 <Grid container>
                     <Grid xs={9} item={true}>
-                        <Typography variant="h3" gutterBottom className="title-long">{data.title_long}</Typography>
+                        <Typography variant="h4" gutterBottom className="title-long">{data.title_long}</Typography>
                         <Box mt={3} mb={4}>
                             <Typography variant="subtitle1">Like: {data.like_count}</Typography>
                             <Typography variant="subtitle1">Download: {data.download_count}</Typography>
@@ -59,10 +59,10 @@ const MovieDetail = ({ match }) => {
     )
 
     return (
-        <Box width="75%" mt={3} display="flex" justifyContent="center">
+        <Container maxWidth="md" style={ {marginTop: "30px"} }>
             {isLoading === true ? <LinearProgress /> : null}
             {data && moviePanel}
-        </Box>
+        </Container>
 
     );
 

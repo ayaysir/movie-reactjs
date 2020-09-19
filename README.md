@@ -1,3 +1,9 @@
+## 스크린샷
+![첫 화면](./images/1.png)
+![영화 목록 화면](./images/2.png)
+![정렬, 필터링 적용된 화면](./images/3.png)
+![영화 정보 화면](./images/4.png)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
