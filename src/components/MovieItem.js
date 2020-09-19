@@ -1,8 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Box, Grid, Paper, Typography } from '@material-ui/core';
-import Rating from '@material-ui/lab/Rating';
-
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { Box, Grid, Paper, Typography } from '@material-ui/core'
+import Rating from '@material-ui/lab/Rating'
 
 const imgStyle = {
     "width": "90%"
@@ -32,7 +31,14 @@ const MovieItem = ({movie}) => {
                             </Box>
                         </Grid>
                         <Grid>
-                            <Link to={`/movie/${movie.id}`}>[자세히 보기]</Link>
+                            <Link to={`/movie/${movie.id}`} style={
+                                {
+                                    float: "right",
+                                    marginRight: "10px",
+                                    color: "cornflowerblue",
+                                    fontSize: "0.9em"
+                                }
+                            }>[자세히 보기]</Link>
                         </Grid>
                     </Grid>
                 </Grid>

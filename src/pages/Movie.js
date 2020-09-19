@@ -10,7 +10,7 @@ const PER_PAGE = 4
 const Movie = () => {
 
     // 인스턴스 변수
-    const currentPage = useRef(1)
+    const currentPage = useRef(0)
 
     // 리퀘스트 상태
     const [loading, setLoading] = useState(false)
@@ -23,10 +23,18 @@ const Movie = () => {
     // 정렬 기준
     const [currentOrder, setCurrentOrder] = useState({
         sortBy: null,
-        orderBy: "desc"
+        orderBy: "desc",
+        minimumRating: 0,
+        resolution: null
     })
 
     // DOM ref
+
+    const reset = useCallback(() => {
+        currentPage.current = 0
+        setHasNextPage(true)
+        setData(() => [])
+    }, [currentPage, setHasNextPage, setData])
 
     const loadMovies = useCallback(async (params) => {
         try {
@@ -41,72 +49,82 @@ const Movie = () => {
         }
     }, [error]);
 
-    const moreLoad = useCallback(async (params) => {
-        const getData = await loadMovies(params)
+    const moreLoad = useCallback(async () => {
 
-        // 영화가 더 이상 없다면 무한스크롤 중단
-        if(getData.movies.length === 0) {
-            setHasNextPage(false)
-            return
-        }
-        setData(currentData => [...currentData, ...getData.movies])
-    }, [loadMovies])
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const getData = await loadMovies({
-                limit: PER_PAGE
-            })
-            setData(() => [...getData.movies])
-            setHasNextPage(true)
-        }
-        fetchData()
-       
-    }, [loadMovies])
-
-    const handleLoadMore = useCallback(() => {
-        moreLoad({
+        const params = {
             limit: PER_PAGE,
             page: ++currentPage.current,
             sort_by: currentOrder.sortBy || "date_added",
-            order_by: currentOrder.orderBy || "desc"
-        })
-    }, [moreLoad, currentOrder])
+            order_by: currentOrder.orderBy || "desc",
+            minimum_rating: currentOrder.minimumRating,
+            resolution: currentOrder.resolution
+        }
+
+        const getData = await loadMovies(params)
+
+        // 영화가 더 이상 없다면 무한스크롤 중단
+        if (!getData.movies) {
+            setHasNextPage(false)
+            return
+        } else {
+            setHasNextPage(true)
+        }
+        setData(currentData => [...currentData, ...getData.movies])
+    }, [loadMovies, currentPage, currentOrder])
+
+
+    useEffect(() => {
+        moreLoad()
+    }, [])
 
     // 무한스크롤
     const infiniteRef = useInfiniteScroll({
         loading,
         hasNextPage,
-        onLoadMore: handleLoadMore
+        onLoadMore: moreLoad
     })
 
+    // 순서
     const order = useCallback((sortInfo) => {
-        // alert(sortInfo.orderBy + ":" + sortInfo.sortBy)
-        const fetchData = async () => {
-            setData(() => [])
-            const getData = await loadMovies({
-                limit: PER_PAGE,
-                order_by: sortInfo.orderBy,
-                sort_by: sortInfo.sortBy
-            })
-            setData(() => [...getData.movies])
-            setHasNextPage(true)
-            setCurrentOrder({
-                orderBy: sortInfo.orderBy,
-                sortBy: sortInfo.sortBy
-            })
-        }
-        fetchData()
+        reset()
+        setCurrentOrder(currentOrder => ({
+            ...currentOrder,
+            orderBy: sortInfo.orderBy,
+            sortBy: sortInfo.sortBy
+        }))
+    }, [setCurrentOrder, setHasNextPage, reset])
 
-    }, [loadMovies, setCurrentOrder])
+    // 최소 평점
+    const filterByRating = useCallback((minimumRating) => {
+        reset()
+        setCurrentOrder(currentOrder => ({
+            ...currentOrder, 
+            minimumRating 
+        }))
+
+    }, [setCurrentOrder, reset])
+
+    const filterByResolution = useCallback((resolution) => {
+        reset()
+        setCurrentOrder(currentOrder => ({
+            ...currentOrder, 
+            resolution
+        }))
+
+    }, [setCurrentOrder, reset])
 
     return (
         <Container maxWidth="md" ref={infiniteRef}>
             <h3>영화 목록</h3>
-            <MovieFilter clickButton={fromChild => order(fromChild)}/>
-            {data.length > 0 && data.map(item => (<MovieItem movie={item} key={item.id}/>))}
+            <MovieFilter 
+                clickButton={fromChild => order(fromChild)} 
+                sendMinRating={fromChild => filterByRating(fromChild)}
+                sendResolution={fromChild => filterByResolution(fromChild)}
+            />
+            {data.length > 0 && data.map((item, i) => (<MovieItem movie={item} key={i} />))}
             {loading === true ? <LinearProgress /> : null}
-            <div style={{height: '30px'}}></div>
+            {hasNextPage === false ? <p>목록의 끝입니다.</p> : null}
+            <div style={{ height: '30px' }}></div>
         </Container>
     );
 

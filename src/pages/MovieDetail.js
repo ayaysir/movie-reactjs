@@ -3,6 +3,8 @@ import { Box, Grid, LinearProgress, Typography } from '@material-ui/core';
 import Rating from '@material-ui/lab/Rating';
 import { getMovieDetail } from '../util/MovieAPI';
 
+import './MovieDetail.css'
+
 const imgStyle = {
     "width": "90%"
 }
@@ -36,13 +38,17 @@ const MovieDetail = ({ match }) => {
             <Grid xs={7} item={true}>
                 <Grid container>
                     <Grid xs={9} item={true}>
-                        <Typography variant="h3" gutterBottom>{data.title_long}</Typography>
-                        <Typography variant="subtitle1" gutterBottom>Like: {data.like_count}</Typography>
-                        <Typography variant="subtitle1" gutterBottom>Download: {data.download_count}</Typography>
+                        <Typography variant="h3" gutterBottom className="title-long">{data.title_long}</Typography>
+                        <Box mt={3} mb={4}>
+                            <Typography variant="subtitle1">Like: {data.like_count}</Typography>
+                            <Typography variant="subtitle1">Download: {data.download_count}</Typography>
+                        </Box>
+                        
                     </Grid>
                     <Grid xs={3} item={true}>
                         <Typography variant="caption" display="block" gutterBottom>rating: {data.rating}</Typography>
-                        <Rating name="read-only" value={(data.rating / 2)} precision={0.1} readOnly />
+                        <Rating className="rating-star" name="read-only" value={(data.rating / 2)} precision={0.1} readOnly />
+                        
                     </Grid>
                 </Grid>
                 <Grid>
