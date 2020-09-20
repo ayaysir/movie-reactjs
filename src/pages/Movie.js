@@ -3,6 +3,7 @@ import { Container, LinearProgress } from '@material-ui/core'
 import useInfiniteScroll from 'react-infinite-scroll-hook'
 import MovieItem from '../components/MovieItem'
 import MovieFilter from './../components/MovieFilter'
+import ErrorMessage from './../components/ErrorMessage'
 import { getMovies } from '../util/MovieAPI'
 
 const PER_PAGE = 4
@@ -43,11 +44,11 @@ const Movie = () => {
             return result.data.data
         } catch (err) {
             setError(err)
-            console.log(error)
+            console.error("AJAX Error", err)
         } finally {
             setLoading(false) // 스피너 false
         }
-    }, [error]);
+    }, [setError]);
 
     const moreLoad = useCallback(async () => {
 
@@ -63,19 +64,19 @@ const Movie = () => {
         const getData = await loadMovies(params)
 
         // 영화가 더 이상 없다면 무한스크롤 중단
-        if (!getData.movies) {
+        if ((getData && !getData.movies) || !getData) {
             setHasNextPage(false)
             return
         } else {
             setHasNextPage(true)
+            setData(currentData => [...currentData, ...getData.movies])
         }
-        setData(currentData => [...currentData, ...getData.movies])
     }, [loadMovies, currentPage, currentOrder])
 
 
     useEffect(() => {
         moreLoad()
-    }, [])
+    }, [moreLoad])
 
     // 무한스크롤
     const infiniteRef = useInfiniteScroll({
@@ -92,7 +93,7 @@ const Movie = () => {
             orderBy: sortInfo.orderBy,
             sortBy: sortInfo.sortBy
         }))
-    }, [setCurrentOrder, setHasNextPage, reset])
+    }, [setCurrentOrder, reset])
 
     // 최소 평점
     const filterByRating = useCallback((minimumRating) => {
@@ -123,7 +124,8 @@ const Movie = () => {
             />
             {data.length > 0 && data.map((item, i) => (<MovieItem movie={item} key={i} />))}
             {loading === true ? <LinearProgress /> : null}
-            {hasNextPage === false ? <p>목록의 끝입니다.</p> : null}
+            {hasNextPage === false && error === false ? <p>목록의 끝입니다.</p> : null}
+            {error ? <ErrorMessage error={error} /> : null}
             <div style={{ height: '30px' }}></div>
         </Container>
     );

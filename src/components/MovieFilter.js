@@ -22,18 +22,13 @@ export default ({ clickButton, sendMinRating, sendResolution }) => {
         orderBy: "desc"
     })
 
-    const [ratingValue, setRatingValue] = React.useState(0);
-    const [resolution, setResolution] = React.useState("all");
-
     const handleRatingChange = (event) => {
         const minimumRating = event.target.value
-        setRatingValue(minimumRating)
         sendMinRating(minimumRating)
     }
 
     const handleResolutionChange = (event) => {
         const resolution = event.target.value
-        setResolution(resolution)
         sendResolution(resolution)
     }
 
