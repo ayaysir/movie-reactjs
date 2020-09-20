@@ -37,14 +37,18 @@ const MovieDetail = ({ match, history }) => {
         <Grid container>
             <Grid item={true} xs={5}>
                 <img src={data.large_cover_image} alt={data.title_long + '의 이미지'} style={imgStyle}/>
-                <p><a href="#" 
-                    onClick={() => history.goBack()} 
-                    style={{
-                            color: "cornflowerblue",
-                            fontSize: "0.9em"
-                            }}>
-                    [목록으로 돌아가기]
-                    </a>
+                <p><button
+                        onClick={() => history.goBack()} 
+                        style={{
+                                color: "cornflowerblue",
+                                fontSize: "0.9em",
+                                background: "none",
+                                border: "none",
+                                cursor: "pointer",
+                                textDecoration: "underline"
+                                }}>
+                        [목록으로 돌아가기]
+                    </button>
                 </p>
             </Grid>
             <Grid xs={7} item={true}>

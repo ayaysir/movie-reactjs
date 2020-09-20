@@ -57,7 +57,8 @@ export default ({ clickButton, sendMinRating, sendResolution }) => {
             onClick={() => clickEvent(category.apiString)}
             key={category.apiString}
         >
-            {category.nameKo} {currentSort.sortBy === category.apiString ? (currentSort.orderBy === "asc" ? "▲" : "▼") : null}
+            {category.nameKo} {currentSort.sortBy === category.apiString 
+                                ? (currentSort.orderBy === "asc" ? "▲" : "▼") : null}
         </Button>
     );
 
@@ -71,12 +72,15 @@ export default ({ clickButton, sendMinRating, sendResolution }) => {
 
             <label style={{marginLeft: "10px", marginRight: "5px"}}>최소 평점 필터</label>
             <select onChange={handleRatingChange}>
-                {[0,1,2,3,4,5,6,7,8,9].map(num => <option key={num} value={num}>{num === 0 ? "--NONE--" : num}</option>)}
+                {[0,1,2,3,4,5,6,7,8,9].map(num => <option key={num} value={num}>
+                    {num === 0 ? "--NONE--" : num}</option>)}
             </select>
             
             <label style={{marginLeft: "10px", marginRight: "5px"}}>해상도 필터</label>
             <select onChange={handleResolutionChange}>
-                {["all", "720p", "1080p", "2160p", "3D"].map(reso => <option key={reso} value={reso}>{reso === "all" ? "--ALL--" : reso}</option>)}
+                {["all", "720p", "1080p", "2160p", "3D"]
+                .map(reso => <option key={reso} value={reso}>
+                    {reso === "all" ? "--ALL--" : reso}</option>)}
             </select>
 
         </Box>
