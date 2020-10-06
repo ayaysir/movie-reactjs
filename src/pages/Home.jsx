@@ -1,6 +1,6 @@
 import React from 'react';
 import Container from '@material-ui/core/Container';
-import packageJson from './../../package.json'
+import packageJson from '../../package.json'
 
 const Home = () => {
 

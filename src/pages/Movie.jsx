@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Container, LinearProgress } from '@material-ui/core'
 import useInfiniteScroll from 'react-infinite-scroll-hook'
 import MovieItem from '../components/MovieItem'
-import MovieFilter from './../components/MovieFilter'
-import ErrorMessage from './../components/ErrorMessage'
+import MovieFilter from '../components/MovieFilter'
+import ErrorMessage from '../components/ErrorMessage'
 import { getMovies } from '../util/MovieAPI'
 
 const PER_PAGE = 4
@@ -118,9 +118,9 @@ const Movie = () => {
         <Container maxWidth="md" ref={infiniteRef}>
             <h3>영화 목록</h3>
             <MovieFilter 
-                clickButton={fromChild => order(fromChild)} 
-                sendMinRating={fromChild => filterByRating(fromChild)}
-                sendResolution={fromChild => filterByResolution(fromChild)}
+                clickButton={propsObj => order(propsObj)} 
+                sendMinRating={minRatingFromFilter => filterByRating(minRatingFromFilter)}
+                sendResolution={resolutionFromFilter => filterByResolution(resolutionFromFilter)}
             />
             {data.length > 0 && data.map((item, i) => (<MovieItem movie={item} key={i} />))}
             {loading === true ? <LinearProgress /> : null}
